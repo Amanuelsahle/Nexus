@@ -14,6 +14,7 @@ import Link from "next/link";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,7 +37,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+
+      <h1 className="text-3xl font-bold text-center mb-4">Nexus</h1>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Welcome back</CardTitle>
@@ -46,44 +49,16 @@ export default function LoginPage() {
           {error && <ErrorMessage message={error} />}
           <form action={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                required
-                disabled={loading}
-              />
+              <label htmlFor="email" className="text-sm font-medium">Email</label>
+              <Input id="email" name="email" type="email" placeholder="you@example.com" required disabled={loading} />
             </div>
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                disabled={loading}
-              />
+              <label htmlFor="password" className="text-sm font-medium">Password</label>
+              <Input id="password" name="password" type="password" placeholder="••••••••" required disabled={loading} />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
+            <Button type="submit" className="w-full" disabled={loading}>{loading ? "Signing in..." : "Sign in"}</Button>
           </form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/auth/register"
-              className="text-primary hover:underline"
-            >
-              Sign up
-            </Link>
-          </div>
+          <div className="mt-4 text-center text-sm">Don&apos;t have an account? <Link href="/auth/register" className="text-primary hover:underline">Sign up</Link></div>
         </CardContent>
       </Card>
     </div>

@@ -21,7 +21,9 @@ export default function RootLayout({
       <head />
       <body className={inter.className}>
         <ThemeProvider>
-          <ThemeToggle />
+          <div className="fixed top-4 right-4 z-50">
+            <ThemeToggle />
+          </div>
           {children}
         </ThemeProvider>
       </body>
