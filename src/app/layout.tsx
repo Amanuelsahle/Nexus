@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { ThemeProvider } from "@/context/theme-context"
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -15,8 +17,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" className="min-h-screen">
+      <head />
+      <body className={inter.className}>
+        <ThemeProvider>
+          <ThemeToggle />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/20 py-12">
       <div className="text-center max-w-2xl px-4">
-        <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
           Nexus
         </h1>
-        <p className="text-xl text-muted-foreground mb-8">
+        <p className="text-lg sm:text-xl text-muted-foreground mb-8">
           Your collaborative workspace for building amazing things together
         </p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link href="/auth/register">
             <Button size="lg" className="text-lg px-8">
               Get Started

@@ -204,7 +204,7 @@ export function Editor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[500px] px-8 py-4",
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[500px] px-4 sm:px-8 py-4",
       },
     },
     onUpdate: ({ editor }) => {
@@ -631,13 +631,13 @@ export function Editor({
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
-      <div className="border-b px-8 py-4 flex flex-col gap-4">
+      <div className="border-b px-4 sm:px-8 py-4 flex flex-col gap-4">
         <div className="flex items-end justify-between gap-4">
           <input
             type="text"
             value={title}
             onChange={(e) => handleTitleChange(e.target.value)}
-            className="text-4xl font-bold bg-transparent border-none outline-none w-full placeholder:text-muted-foreground"
+            className="text-2xl sm:text-4xl font-bold bg-transparent border-none outline-none w-full placeholder:text-muted-foreground"
             placeholder="Untitled"
           />
           <div className="text-sm text-muted-foreground">{saveStatus}</div>
@@ -756,7 +756,7 @@ export function Editor({
         )}
       </div>
 
-      <div className="border-b px-8 py-3 bg-slate-50 flex flex-col gap-3">
+      <div className="border-b px-4 sm:px-8 py-3 bg-slate-50 flex flex-col gap-3">
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <label htmlFor="fontSize" className="font-medium text-slate-700">
