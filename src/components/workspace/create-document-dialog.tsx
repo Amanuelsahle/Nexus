@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { createDocument } from "@/app/dashboard/[workspaceId]/actions/create-document";
 
 interface CreateDocumentDialogProps {
@@ -27,25 +28,33 @@ export function CreateDocumentDialog({
 }: CreateDocumentDialogProps) {
   const [title, setTitle] = useState("Untitled");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setTitle("Untitled");
+      setError(null);
     }
   }, [open]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
+    setError(null);
 
-    await createDocument(
+    const result = await createDocument(
       workspaceId,
       parentId ?? null,
       title.trim() || "Untitled",
     );
 
-    setLoading(false);
-    onOpenChange(false);
+    if (result && result.error) {
+      setError(result.error);
+      setLoading(false);
+    } else {
+      setLoading(false);
+      onOpenChange(false);
+    }
   };
 
   return (
@@ -59,6 +68,9 @@ export function CreateDocumentDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <ErrorMessage message={error} onDismiss={() => setError(null)} />
+          )}
           <div className="space-y-2">
             <label htmlFor="pageTitle" className="text-sm font-medium">
               Page Title

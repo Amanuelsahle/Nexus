@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useState, useEffect } from "react";
 import { ChevronDown, LogOut } from "lucide-react";
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function DashboardLayout({
   children,
@@ -14,6 +14,7 @@ export default function DashboardLayout({
 }) {
   const supabase = createClient();
   const router = useRouter();
+  const pathname = usePathname();
   const [email, setEmail] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [workspaces, setWorkspaces] = useState<any[]>([]);
@@ -52,7 +53,7 @@ export default function DashboardLayout({
 
     getUserEmail();
     loadWorkspaces();
-  }, [supabase, router]);
+  }, [supabase, router, pathname]);
 
   return (
     <div className="flex h-screen bg-background">

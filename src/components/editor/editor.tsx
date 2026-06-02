@@ -87,20 +87,13 @@ const TextStyle = Mark.create({
 
   addCommands() {
     return {
-      setTextStyle:
-        (attributes) =>
-        ({ chain }) => {
-          const attrs = Object.fromEntries(
-            Object.entries(attributes).filter(([, value]) => value != null),
-          );
-          return chain().setMark(this.name, attrs).run();
-        },
-      unsetTextStyle:
-        () =>
-        ({ chain }) => {
-          return chain().unsetMark(this.name).run();
-        },
-    };
+      setTextStyle: (attributes: Record<string, any>) => ({ commands }: { commands: any }) => {
+        return commands.setMark(this.name, attributes);
+      },
+      unsetTextStyle: () => ({ commands }: { commands: any }) => {
+        return commands.unsetMark(this.name);
+      },
+    } as any;
   },
 });
 
@@ -192,7 +185,7 @@ export function Editor({
       Collaboration.configure({
         document: ydocRef.current,
       }),
-      StarterKit,
+      StarterKit.configure({ history: false }),
       TextStyle,
       Placeholder.configure({
         placeholder: "Type '/' for commands...",
@@ -224,6 +217,17 @@ export function Editor({
     },
   });
 
+  // Helper to handle title changes
+  const handleTitleChange = (value: string) => {
+    setTitle(value);
+  };
+
+  // Helper to apply text style marks
+  const applyTextStyle = (style: { fontSize?: string; fontWeight?: string; color?: string }) => {
+    if (!editor) return;
+    editor.chain().focus().setMark('textStyle', style).run();
+  };
+
   useEffect(() => {
     if (editor && initialContent && !providerRef.current) {
       editor.commands.setContent(initialContent);
@@ -231,7 +235,7 @@ export function Editor({
   }, [editor, initialContent]);
 
   useEffect(() => {
-    const defaultHost = "localhost:1234";
+    const defaultHost = "localhost:1235";
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
     const url =
       process.env.NEXT_PUBLIC_YJS_WS_URL || `${protocol}://${defaultHost}`;
@@ -282,7 +286,7 @@ export function Editor({
         return [] as Profile[];
       }
 
-      return data ?? [];
+      return (data as Profile[]) ?? [];
     },
     [supabase],
   );
@@ -298,14 +302,14 @@ export function Editor({
       return;
     }
 
-    const ids = (rows ?? []).map((row) => row.user_id);
+    const ids = ((rows as unknown as Collaborator[]) ?? []).map((row) => row.user_id);
     const profiles = await fetchProfiles(ids);
     const profileMap = new Map(
       profiles.map((profile) => [profile.id, profile]),
     );
 
     setCollaborators(
-      (rows ?? []).map((row) => ({
+      (rows as unknown as Collaborator[] ?? []).map((row) => ({
         ...row,
         profile: profileMap.get(row.user_id) ?? null,
       })),
@@ -323,14 +327,14 @@ export function Editor({
       return;
     }
 
-    const ids = (rows ?? []).map((row) => row.user_id);
+    const ids = ((rows as PresenceRow[]) ?? []).map((row) => row.user_id);
     const profiles = await fetchProfiles(ids);
     const profileMap = new Map(
       profiles.map((profile) => [profile.id, profile]),
     );
 
     setPresence(
-      (rows ?? []).map((row) => ({
+      ((rows as PresenceRow[]) ?? []).map((row) => ({
         ...row,
         profile: profileMap.get(row.user_id) ?? null,
       })),
@@ -363,8 +367,8 @@ export function Editor({
 
     if (membershipError) {
       console.error("Failed to load workspace role", membershipError);
-    } else if (membership?.role) {
-      setCurrentUserRole(membership.role as typeof currentUserRole);
+    } else if ((membership as any)?.role) {
+      setCurrentUserRole((membership as any).role as typeof currentUserRole);
     }
 
     await Promise.all([loadCollaborators(), loadPresence()]);
@@ -397,8 +401,8 @@ export function Editor({
         cursor: null,
         color: presenceColorRef.current,
         last_active: new Date().toISOString(),
-      },
-      { onConflict: ["document_id", "user_id"] },
+      } as any,
+      { onConflict: "document_id,user_id" },
     );
 
     if (error) {
@@ -506,7 +510,7 @@ export function Editor({
           table: "documents",
           filter: `id=eq.${documentId}`,
         },
-        (payload) => {
+        (payload: any) => {
           if (providerRef.current) {
             // When using Yjs collaboration, ignore DB update events to avoid
             // duplicating content — Yjs handles syncing.
@@ -584,9 +588,9 @@ export function Editor({
       .from("document_collaborators")
       .insert({
         document_id: documentId,
-        user_id: profile.id,
+        user_id: (profile as any).id,
         role: inviteRole,
-      });
+      } as any);
 
     if (insertError) {
       setInviteError(insertError.message || "Failed to add collaborator.");
@@ -598,10 +602,10 @@ export function Editor({
       .upsert(
         {
           workspace_id: workspaceId,
-          user_id: profile.id,
+          user_id: (profile as any).id,
           role: "member",
-        },
-        { onConflict: ["workspace_id", "user_id"] },
+        } as any,
+        { onConflict: "workspace_id,user_id" },
       );
 
     if (workspaceInsertError) {
