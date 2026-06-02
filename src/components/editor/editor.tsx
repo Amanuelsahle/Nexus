@@ -178,6 +178,7 @@ export function Editor({
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState(initialUpdatedAt);
+  const [showInviteForm, setShowInviteForm] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -643,8 +644,21 @@ export function Editor({
         </div>
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-700">
-            <span className="font-medium">Collaborators</span>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-700">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Collaborators</span>
+              {(currentUserRole === "owner" || currentUserRole === "admin") && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowInviteForm(!showInviteForm)}
+                  className="h-7 px-2 text-xs"
+                >
+                  {showInviteForm ? "Hide Invite" : "Invite"}
+                </Button>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               {collaborators.length > 0 ? (
                 collaborators.map((collaborator) => {
@@ -701,7 +715,7 @@ export function Editor({
           </div>
         </div>
 
-        {(currentUserRole === "owner" || currentUserRole === "admin") && (
+        {showInviteForm && (currentUserRole === "owner" || currentUserRole === "admin") && (
           <div className="grid gap-2 rounded-lg border bg-white p-4 text-sm shadow-sm">
             <div className="font-semibold text-slate-800">
               Invite a collaborator
