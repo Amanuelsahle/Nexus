@@ -87,12 +87,16 @@ const TextStyle = Mark.create({
 
   addCommands() {
     return {
-      setTextStyle: (attributes: Record<string, any>) => ({ commands }: { commands: any }) => {
-        return commands.setMark(this.name, attributes);
-      },
-      unsetTextStyle: () => ({ commands }: { commands: any }) => {
-        return commands.unsetMark(this.name);
-      },
+      setTextStyle:
+        (attributes: Record<string, any>) =>
+        ({ commands }: { commands: any }) => {
+          return commands.setMark(this.name, attributes);
+        },
+      unsetTextStyle:
+        () =>
+        ({ commands }: { commands: any }) => {
+          return commands.unsetMark(this.name);
+        },
     } as any;
   },
 });
@@ -224,9 +228,13 @@ export function Editor({
   };
 
   // Helper to apply text style marks
-  const applyTextStyle = (style: { fontSize?: string; fontWeight?: string; color?: string }) => {
+  const applyTextStyle = (style: {
+    fontSize?: string;
+    fontWeight?: string;
+    color?: string;
+  }) => {
     if (!editor) return;
-    editor.chain().focus().setMark('textStyle', style).run();
+    editor.chain().focus().setMark("textStyle", style).run();
   };
 
   useEffect(() => {
@@ -303,14 +311,16 @@ export function Editor({
       return;
     }
 
-    const ids = ((rows as unknown as Collaborator[]) ?? []).map((row) => row.user_id);
+    const ids = ((rows as unknown as Collaborator[]) ?? []).map(
+      (row) => row.user_id,
+    );
     const profiles = await fetchProfiles(ids);
     const profileMap = new Map(
       profiles.map((profile) => [profile.id, profile]),
     );
 
     setCollaborators(
-      (rows as unknown as Collaborator[] ?? []).map((row) => ({
+      ((rows as unknown as Collaborator[]) ?? []).map((row) => ({
         ...row,
         profile: profileMap.get(row.user_id) ?? null,
       })),
@@ -715,50 +725,53 @@ export function Editor({
           </div>
         </div>
 
-        {showInviteForm && (currentUserRole === "owner" || currentUserRole === "admin") && (
-          <div className="grid gap-2 rounded-lg border bg-white p-4 text-sm shadow-sm">
-            <div className="font-semibold text-slate-800">
-              Invite a collaborator
+        {showInviteForm &&
+          (currentUserRole === "owner" || currentUserRole === "admin") && (
+            <div className="grid gap-2 rounded-lg border bg-white p-4 text-sm shadow-sm">
+              <div className="font-semibold text-slate-800">
+                Invite a collaborator
+              </div>
+              <div className="grid gap-2 md:grid-cols-[1fr_auto]">
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(event) => setInviteEmail(event.target.value)}
+                  placeholder="User email"
+                  className="rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+                />
+                <select
+                  value={inviteRole}
+                  onChange={(event) =>
+                    setInviteRole(event.target.value as Collaborator["role"])
+                  }
+                  className="rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
+                >
+                  <option value="owner">Owner</option>
+                  <option value="editor">Editor</option>
+                  <option value="commenter">Commenter</option>
+                  <option value="viewer">Viewer</option>
+                </select>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" size="sm" onClick={handleInvite}>
+                  Add collaborator
+                </Button>
+                {inviteError && (
+                  <span className="text-sm text-red-600">{inviteError}</span>
+                )}
+                {inviteSuccess && (
+                  <span className="text-sm text-green-600">
+                    {inviteSuccess}
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="grid gap-2 md:grid-cols-[1fr_auto]">
-              <input
-                type="email"
-                value={inviteEmail}
-                onChange={(event) => setInviteEmail(event.target.value)}
-                placeholder="User email"
-                className="rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
-              />
-              <select
-                value={inviteRole}
-                onChange={(event) =>
-                  setInviteRole(event.target.value as Collaborator["role"])
-                }
-                className="rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-slate-300"
-              >
-                <option value="owner">Owner</option>
-                <option value="editor">Editor</option>
-                <option value="commenter">Commenter</option>
-                <option value="viewer">Viewer</option>
-              </select>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button type="button" size="sm" onClick={handleInvite}>
-                Add collaborator
-              </Button>
-              {inviteError && (
-                <span className="text-sm text-red-600">{inviteError}</span>
-              )}
-              {inviteSuccess && (
-                <span className="text-sm text-green-600">{inviteSuccess}</span>
-              )}
-            </div>
-          </div>
-        )}
+          )}
       </div>
 
-      <div className="border-b px-4 sm:px-8 py-3 bg-slate-50 flex flex-col gap-3">
+      <div className="border-b px-4 sm:px-8 py-3 bg-muted flex flex-col gap-3">
         <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm  text-muted-foreground">
             <label htmlFor="fontSize" className="font-medium text-slate-700">
               Size
             </label>
