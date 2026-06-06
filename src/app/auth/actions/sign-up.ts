@@ -2,7 +2,6 @@
 
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { Database } from "@/types/supabase";
 import { cookies } from "next/headers";
 
@@ -27,7 +26,15 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    return redirect("/auth/register?error=Could not create account");
+    return { success: false, error: error.message };
+  }
+
+  // 2. Handle existing email check (If identities array is empty, the email already exists)
+  if (data.user && data.user.identities && data.user.identities.length === 0) {
+    return {
+      success: false,
+      error: "An account with this email already exists.",
+    };
   }
 
   if (data.user) {
@@ -48,5 +55,5 @@ export async function signUp(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  return { success: true };
 }
