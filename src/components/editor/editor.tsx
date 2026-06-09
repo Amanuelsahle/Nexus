@@ -7,7 +7,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/types/supabase";
 import { Button } from "@/components/ui/button";
 import { saveDocument } from "@/app/dashboard/[workspaceId]/doc/[docId]/actions/save-document";
@@ -15,6 +15,7 @@ import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
 import Collaboration from "@tiptap/extension-collaboration";
+import { useTheme } from "@/context/theme-context";
 
 const TextStyle = Mark.create({
   name: "textStyle",
@@ -153,7 +154,8 @@ export function Editor({
   initialTitle,
   initialUpdatedAt,
 }: EditorProps) {
-  const supabase = createClientComponentClient<Database>();
+  const { theme } = useTheme();
+  const supabase = createClient();
   const skipRemoteUpdateRef = useRef(false);
   const mountedRef = useRef(true);
   const presenceColorRef = useRef(generatePresenceColor());
@@ -169,7 +171,9 @@ export function Editor({
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [fontSize, setFontSize] = useState("18px");
   const [fontWeight, setFontWeight] = useState("400");
-  const [textColor, setTextColor] = useState("#111827");
+  const defaultTextColor = theme === "dark" ? "#F9FAFB" : "#111827";
+  const [textColor, setTextColor] = useState(defaultTextColor);
+  const [hasCustomTextColor, setHasCustomTextColor] = useState(false);
 
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<
@@ -183,6 +187,12 @@ export function Editor({
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState(initialUpdatedAt);
   const [showInviteForm, setShowInviteForm] = useState(false);
+
+  useEffect(() => {
+    if (!hasCustomTextColor) {
+      setTextColor(defaultTextColor);
+    }
+  }, [defaultTextColor, hasCustomTextColor]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -208,7 +218,7 @@ export function Editor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[500px] px-4 sm:px-8 py-4",
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[500px] px-4 sm:px-8 py-4 text-foreground caret-foreground",
       },
     },
     onUpdate: ({ editor }) => {
@@ -654,7 +664,7 @@ export function Editor({
         </div>
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-700">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-foreground">
             <div className="flex items-center gap-2">
               <span className="font-medium">Collaborators</span>
               {(currentUserRole === "owner" || currentUserRole === "admin") && (
@@ -679,36 +689,36 @@ export function Editor({
                   return (
                     <div
                       key={collaborator.id}
-                      className="flex items-center gap-2 rounded-full border px-3 py-1 text-xs bg-white"
+                      className="flex items-center gap-2 rounded-full border px-3 py-1 text-xs bg-card"
                     >
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-700">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
                         {collaborator.profile?.full_name?.[0] ||
                           collaborator.profile?.email?.[0] ||
                           "U"}
                       </span>
                       <span>{label}</span>
-                      <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-slate-600">
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">
                         {collaborator.role}
                       </span>
                     </div>
                   );
                 })
               ) : (
-                <span className="text-slate-500">
+                <span className="text-muted-foreground">
                   No collaborators configured yet.
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-foreground">
             <span className="font-medium">Online now</span>
             <div className="flex items-center gap-2">
               {activePresence.length > 0 ? (
                 activePresence.map((row) => (
                   <span
                     key={row.id}
-                    className="inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1 text-xs"
+                    className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs"
                     style={{ borderColor: row.color || "#CBD5E1" }}
                   >
                     <span
@@ -719,7 +729,7 @@ export function Editor({
                   </span>
                 ))
               ) : (
-                <span className="text-slate-500">No one else online yet.</span>
+                <span className="text-muted-foreground">No one else online yet.</span>
               )}
             </div>
           </div>
@@ -727,8 +737,8 @@ export function Editor({
 
         {showInviteForm &&
           (currentUserRole === "owner" || currentUserRole === "admin") && (
-            <div className="grid gap-2 rounded-lg border bg-white p-4 text-sm shadow-sm">
-              <div className="font-semibold text-slate-800">
+            <div className="grid gap-2 rounded-lg border bg-card p-4 text-sm shadow-sm">
+              <div className="font-semibold text-foreground">
                 Invite a collaborator
               </div>
               <div className="grid gap-2 md:grid-cols-[1fr_auto]">
@@ -772,7 +782,7 @@ export function Editor({
       <div className="border-b px-4 sm:px-8 py-3 bg-muted flex flex-col gap-3">
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex items-center gap-2 text-sm  text-muted-foreground">
-            <label htmlFor="fontSize" className="font-medium text-slate-700">
+            <label htmlFor="fontSize" className="font-medium text-foreground">
               Size
             </label>
             <select
@@ -798,7 +808,7 @@ export function Editor({
           </div>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <label htmlFor="fontWeight" className="font-medium text-slate-700">
+            <label htmlFor="fontWeight" className="font-medium text-foreground">
               Weight
             </label>
             <select
@@ -823,7 +833,7 @@ export function Editor({
           </div>
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <label htmlFor="textColor" className="font-medium text-slate-700">
+            <label htmlFor="textColor" className="font-medium text-foreground">
               Color
             </label>
             <input
@@ -833,6 +843,7 @@ export function Editor({
               onChange={(e) => {
                 const next = e.target.value;
                 setTextColor(next);
+                setHasCustomTextColor(true);
                 applyTextStyle({ fontSize, fontWeight, color: next });
               }}
               className="h-9 w-12 rounded-md border p-0"

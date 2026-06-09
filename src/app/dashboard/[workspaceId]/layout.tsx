@@ -7,9 +7,12 @@ export default async function WorkspaceLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { workspaceId: string };
+  params: Promise<{ workspaceId: string }>;
 }) {
-  const supabase = createClient();
+  const resolvedParams = await params;
+  const workspaceId = resolvedParams.workspaceId;
+
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -23,7 +26,7 @@ export default async function WorkspaceLayout({
   const { data: member } = await supabase
     .from("workspace_members")
     .select("*")
-    .eq("workspace_id", params.workspaceId)
+    .eq("workspace_id", workspaceId)
     .eq("user_id", user.id)
     .single();
 
@@ -35,7 +38,7 @@ export default async function WorkspaceLayout({
   const { data: workspace } = await supabase
     .from("workspaces")
     .select("*")
-    .eq("id", params.workspaceId)
+    .eq("id", workspaceId)
     .single();
 
   if (!workspace) {
@@ -46,7 +49,7 @@ export default async function WorkspaceLayout({
   const { data: documents } = await supabase
     .from("documents")
     .select("*")
-    .eq("workspace_id", params.workspaceId)
+    .eq("workspace_id", workspaceId)
     .eq("is_archived", false)
     .order("created_at", { ascending: true });
 
@@ -55,7 +58,7 @@ export default async function WorkspaceLayout({
       <Sidebar
         workspace={workspace}
         documents={documents || []}
-        workspaceId={params.workspaceId}
+        workspaceId={workspaceId}
       />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>

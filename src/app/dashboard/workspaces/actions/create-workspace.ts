@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createServerActionSupabaseClient } from "@/lib/supabase/auth";
+import { createClient } from "@/lib/supabase/server";
 import { Database } from "@/types/supabase";
 
 export async function createWorkspace(formData: FormData) {
@@ -11,7 +11,7 @@ export async function createWorkspace(formData: FormData) {
     return { error: "Workspace name is required." };
   }
 
-  const supabase = createServerActionSupabaseClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error: userError,
@@ -37,7 +37,11 @@ export async function createWorkspace(formData: FormData) {
   // @ts-ignore
   const { error: memberError } = await supabase
     .from("workspace_members")
-    .insert({ workspace_id: (workspace as any).id, user_id: user.id, role: "owner" } as any);
+    .insert({
+      workspace_id: (workspace as any).id,
+      user_id: user.id,
+      role: "owner",
+    } as any);
 
   if (memberError) {
     console.error("Member addition error:", memberError);

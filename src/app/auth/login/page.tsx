@@ -9,37 +9,16 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signIn } from "@/app/auth/actions/sign-in";
+import { signIn, FormState } from "@/app/auth/actions/sign-in";
 import Link from "next/link";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useActionState } from "react";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // Stop default HTML submission
-
-    setLoading(true);
-    setError(null);
-
-    // Manually extract FormData from the form element
-    const formData = new FormData(event.currentTarget);
-
-    const result = await signIn(formData);
-
-    if (result.error) {
-      setError(result.error);
-      setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
-    }
-  }
+  const initialState: FormState = {
+    errors: {},
+  };
+  const [state, formAction, isPending] = useActionState(signIn, initialState);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
@@ -50,8 +29,8 @@ export default function LoginPage() {
           <CardDescription>Sign in to your Nexus workspace</CardDescription>
         </CardHeader>
         <CardContent>
-          {error && <ErrorMessage message={error} />}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {state.errors.form && <ErrorMessage message={state.errors.form} />}
+          <form action={formAction} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
                 Email
@@ -62,7 +41,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@example.com"
                 required
-                disabled={loading}
+                disabled={isPending}
               />
             </div>
             <div className="space-y-2">
@@ -75,11 +54,11 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 required
-                disabled={loading}
+                disabled={isPending}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign in"}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Signing in..." : "Sign in"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ export function CreateDocumentDialog({
   open,
   onOpenChange,
 }: CreateDocumentDialogProps) {
+  const router = useRouter();
   const [title, setTitle] = useState("Untitled");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,18 +44,24 @@ export function CreateDocumentDialog({
     setLoading(true);
     setError(null);
 
-    const result = await createDocument(
-      workspaceId,
-      parentId ?? null,
-      title.trim() || "Untitled",
-    );
+    try {
+      const result = await createDocument(
+        workspaceId,
+        parentId ?? null,
+        title.trim() || "Untitled",
+      );
 
-    if (result && result.error) {
-      setError(result.error);
-      setLoading(false);
-    } else {
-      setLoading(false);
+      if (result && result.error) {
+        setError(result.error);
+        return;
+      }
+
       onOpenChange(false);
+      if (result?.documentId) {
+        router.push(`/dashboard/${workspaceId}/doc/${result.documentId}`);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

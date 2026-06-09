@@ -4,14 +4,14 @@ const nextConfig = {
     // JSON & TXT as buffers (already in place)
     config.module.rules.unshift({
       test: /\.(json|txt)$/i,
-      type: 'asset/resource',
+      type: "asset/resource",
       generator: { emit: true },
     });
 
     // Catch other large static assets (SVG, images, etc.)
     config.module.rules.unshift({
       test: /\.(svg|png|jpe?g|ico|webp|gif)$/i,
-      type: 'asset/resource',
+      type: "asset/resource",
     });
 
     // Optional: turn off performance hints entirely (less noisy)
@@ -19,6 +19,7 @@ const nextConfig = {
 
     return config;
   },
+  turbopack: {},
 };
 
 module.exports = nextConfig;

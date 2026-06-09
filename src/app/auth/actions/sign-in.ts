@@ -1,28 +1,47 @@
 "use server";
 
-import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { Database } from "@/types/supabase";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export async function signIn(formData: FormData) {
+export type Errors = {
+  email?: string;
+  password?: string;
+  form?: string;
+};
+
+export type FormState = {
+  errors: Errors;
+};
+
+export async function signIn(prevState: FormState, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const cookieStore = cookies();
-  const supabase = createServerActionClient<Database>({
-    cookies: () => cookieStore,
-  });
+  if (!email || !password) {
+    return {
+      errors: {
+        email: !email ? "Email is required" : undefined,
+        password: !password ? "Password is required" : undefined,
+      },
+    };
+  }
+  const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
-    return { error: "Invalid credentials" };
+    return {
+      errors: {
+        form: error.message,
+      },
+    };
   }
-
   revalidatePath("/", "layout");
-  return { success: true };
+  redirect("/dashboard");
 }
