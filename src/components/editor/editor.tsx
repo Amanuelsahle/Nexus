@@ -213,8 +213,7 @@ export function Editor({
         openOnClick: false,
       }),
     ],
-    // Don't pass `content` when using Yjs collaboration — we'll set content
-    // manually only when no provider is present to avoid duplication.
+
     editorProps: {
       attributes: {
         class:
@@ -729,7 +728,9 @@ export function Editor({
                   </span>
                 ))
               ) : (
-                <span className="text-muted-foreground">No one else online yet.</span>
+                <span className="text-muted-foreground">
+                  No one else online yet.
+                </span>
               )}
             </div>
           </div>

@@ -8,7 +8,7 @@ export async function renameDocument(
   workspaceId: string,
   title: string,
 ) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await (supabase.from("documents") as any)
     .update({

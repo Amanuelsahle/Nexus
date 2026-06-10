@@ -9,7 +9,7 @@ import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import * as Y from "yjs";
 import { Awareness } from "y-protocols/awareness";
 import SupabaseProvider from "y-supabase";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   documentId: string;
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export const CollaborativeEditor = ({ documentId, user }: Props) => {
-  const supabase = createClientComponentClient();
+  const supabase = useMemo(() => createClient(), []);
   const [provider, setProvider] = useState<SupabaseProvider | null>(null);
 
   // Initialize Yjs Document
@@ -30,7 +30,7 @@ export const CollaborativeEditor = ({ documentId, user }: Props) => {
   useEffect(() => {
     if (!documentId) return;
 
-    // 1. Initialize Supabase Yjs Provider
+    //  Initialize Supabase Yjs Provider
     const newProvider = new SupabaseProvider(ydoc, supabase, {
       tableName: "documents",
       columnName: "content",
@@ -52,14 +52,14 @@ export const CollaborativeEditor = ({ documentId, user }: Props) => {
     {
       extensions: [
         StarterKit.configure({
-          history: false, // Collaborative editing has its own undo/redo manager
+          history: false,
         }),
-        // 2. Configure Real-time Content Sync
+        // Configure Real-time Content Sync
         Collaboration.configure({
           document: ydoc,
           field: "content",
         }),
-        // 3. Configure Real-time Cursors (Awareness)
+        //  Configure Real-time Cursors (Awareness)
         ...(provider
           ? [
               CollaborationCursor.configure({
@@ -72,14 +72,13 @@ export const CollaborativeEditor = ({ documentId, user }: Props) => {
             ]
           : []),
       ],
-      // 4. Sync Presence to the database table
+      //  Sync Presence to the database table
       onSelectionUpdate: useMemo(
         () =>
           debounce(({ editor }) => {
             const { from, to } = editor.state.selection;
 
-            supabase
-              .from("document_presence")
+            (supabase.from("document_presence") as any)
               .upsert(
                 {
                   document_id: documentId,
@@ -90,7 +89,7 @@ export const CollaborativeEditor = ({ documentId, user }: Props) => {
                 },
                 { onConflict: "document_id,user_id" },
               )
-              .then(({ error }) => {
+              .then(({ error }: { error: any }) => {
                 if (error) console.error("Error syncing presence:", error);
               });
           }, 500),
@@ -103,8 +102,7 @@ export const CollaborativeEditor = ({ documentId, user }: Props) => {
   // Cleanup presence on unmount
   useEffect(() => {
     return () => {
-      supabase
-        .from("document_presence")
+      (supabase.from("document_presence") as any)
         .delete()
         .match({ document_id: documentId, user_id: user.id });
     };

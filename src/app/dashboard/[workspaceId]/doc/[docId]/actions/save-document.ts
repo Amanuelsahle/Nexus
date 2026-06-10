@@ -9,7 +9,7 @@ export async function saveDocument(
   title: string,
   content: any,
 ) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await (supabase.from("documents") as any)
     .update({

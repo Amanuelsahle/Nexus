@@ -8,10 +8,12 @@ import { useParams } from "next/navigation";
 
 export default function WorkspacePage() {
   const router = useRouter();
-  const params = useParams();
+
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [rootDocuments, setRootDocuments] = useState<any[]>([]);
+
+  const params = useParams<{ workspaceId: string }>();
 
   useEffect(() => {
     async function loadWorkspace() {

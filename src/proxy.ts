@@ -8,7 +8,7 @@ export async function proxy(req: NextRequest) {
     },
   });
 
-  // 1. Initialize the modern Supabase client for edge proxying
+  // 1. Initialize the Supabase client for edge proxying
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -34,7 +34,7 @@ export async function proxy(req: NextRequest) {
     },
   );
 
-  // 2. Safely grab the session using the modern helper
+  // 2. Safely grab the session
   const {
     data: { session },
   } = await supabase.auth.getSession();
