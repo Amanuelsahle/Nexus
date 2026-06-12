@@ -3,10 +3,8 @@ import { cookies } from "next/headers";
 import { Database } from "@/types/supabase";
 
 export const createClient = async () => {
-  // 1. Next.js 16 requires 'await' for cookies()
   const cookieStore = await cookies();
 
-  // 2. Use the modern createServerClient instead of auth-helpers
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
