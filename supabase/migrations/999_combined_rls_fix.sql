@@ -1,6 +1,4 @@
--- ------------------------------------------------------------
--- 999_combined_rls_fix.sql  –  Perfect Recursion-Free RLS Policies
--- ------------------------------------------------------------
+
 
 -- Ensure RLS is enabled
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
